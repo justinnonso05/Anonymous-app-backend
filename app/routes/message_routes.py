@@ -8,13 +8,13 @@ from app.utils.auth import decode_access_token
 router = APIRouter()
 security = HTTPBearer(auto_error=False)
 
-@router.post("/send/{username}")
+@router.post("/send/{email}")
 async def send_message(
-    username: str,
-    content: str,
+    email: str,
+    content: str, 
     db: Session = Depends(get_db)
 ):
-    recipient = db.query(User).filter(User.username == username).first()
+    recipient = db.query(User).filter(User.email == email).first()
     if not recipient:
         raise HTTPException(status_code=404, detail="Recipient not found")
 
