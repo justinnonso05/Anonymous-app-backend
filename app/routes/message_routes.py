@@ -8,7 +8,7 @@ from app.utils.auth import decode_access_token
 router = APIRouter()
 security = HTTPBearer(auto_error=False)
 
-@router.post("/send/{email}")
+@router.post("/send/{username}")
 async def send_message(
     username: str,
     content: str, 
@@ -33,8 +33,8 @@ async def get_my_messages(
         raise HTTPException(status_code=401, detail="Authentication required")
     token = credentials.credentials
     payload = decode_access_token(token)
-    user_email = payload.get("sub")
-    user = db.query(User).filter(User.email == user_email).first()
+    username = payload.get("sub")
+    user = db.query(User).filter(User.username == username).first()
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
