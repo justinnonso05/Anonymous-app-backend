@@ -1,3 +1,4 @@
+from sqlalchemy.exc import IntegrityError
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from app.database import get_db
@@ -14,8 +15,15 @@ async def create_user(user: UserCreate, db: Session = Depends(get_db)):
     hashed_password = hash_password(user.password)
     new_user = User(email=user.email, username=user.username, password=hashed_password)
     db.add(new_user)
-    db.commit()
-    db.refresh(new_user)
+    try:
+        db.commit()
+        db.refresh(new_user)
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=400,
+            detail="A user with that email or username already exists."
+        )
     return {"id": new_user.id, "email": new_user.email, "username": new_user.username}
 
 @router.post("/login/")
