@@ -20,13 +20,15 @@ async def create_user(user: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login/")
 async def authenticate_user(user: UserLogin, db: Session = Depends(get_db)):
-    db_user = db.query(User).filter(User.email == user.email).first()
+    db_user = db.query(User).filter(User.username == user.username).first()
     if not db_user:
         raise HTTPException(status_code=400, detail="Invalid email or password")
     if not verify_password(user.password, db_user.password):
         raise HTTPException(status_code=400, detail="Invalid email or password")
-    access_token = create_access_token(data={"sub": db_user.email})
+    access_token = create_access_token(data={"sub": db_user.username})
     return {
+            "id": db_user.id,
+            "username": db_user.username,
             "email": db_user.email,
             "access_token": access_token,
             "token_type": "bearer"

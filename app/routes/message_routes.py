@@ -10,11 +10,11 @@ security = HTTPBearer(auto_error=False)
 
 @router.post("/send/{email}")
 async def send_message(
-    email: str,
+    username: str,
     content: str, 
     db: Session = Depends(get_db)
 ):
-    recipient = db.query(User).filter(User.email == email).first()
+    recipient = db.query(User).filter(User.username == username).first()
     if not recipient:
         raise HTTPException(status_code=404, detail="Recipient not found")
 
